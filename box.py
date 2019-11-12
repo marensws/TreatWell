@@ -1,9 +1,16 @@
 # coding=UTF-8
 
+import pytest
 import sys
 
 
 def drawBox(w, h):
+    # Checks if w and h are positive and raises an exception if they are not
+    if w < 0 or h < 0:
+        raise Exception("The width and height of a box must be a positive number")
+    # rounds any decimal or float numbers down to nearest integer
+    w = int(w)
+    h = int(h)
     # creates a table row by row, with a XY-axis with origin in the bottom right corner.
     # each coordinate is matched with a character depending on its position relative to the extreme points of the table
     for y in reversed(range(h)):
@@ -50,3 +57,57 @@ def drawBox(w, h):
         for i in row:
             sys.stdout.write(i)
 
+
+# Tests if the right sequence of letters are printed to the terminal
+def test_characters(capsys):
+    drawBox(2, 3)
+    out, err = capsys.readouterr()
+    assert u"\n\u231C\u231D\n||\n\u231E\u231F" in out
+
+
+# tests if drawing a large rectangle produces the expected length of output (w*h+h)
+def test_draw_large_rectangle(capsys):
+    drawBox(5000, 1000)
+    out, err = capsys.readouterr()
+    assert len(out) == 5001000
+
+
+# tests if drawing a large square produces the expected length of output
+def test_draw_large_square(capsys):
+    drawBox(1000, 1000)
+    out, err = capsys.readouterr()
+    assert len(out) == 1001000
+
+
+# tests if passing negative arguments raises an exception
+def test_draw_negative_square():
+    with pytest.raises(Exception):
+        assert drawBox(-5, -5)
+
+
+# tests if drawing a rectangle with a decimal width produces the expected length of output
+def test_decimal_width(capsys):
+    drawBox(5.6, 40)
+    out, err = capsys.readouterr()
+    assert len(out) == 240
+
+
+# tests if drawing a rectangle with a decimal height produces the expected length of output
+def test_decimal_height(capsys):
+    drawBox(70, 4.976)
+    out, err = capsys.readouterr()
+    assert len(out) == 284
+
+
+# tests if drawing a rectangle with a greater width produces the expected length of output
+def test_greater_width(capsys):
+    drawBox(80, 6)
+    out, err = capsys.readouterr()
+    assert len(out) == 486
+
+
+# tests if drawing a rectangle with a greater height produces the expected length of output
+def test_greater_height(capsys):
+    drawBox(6, 80)
+    out, err = capsys.readouterr()
+    assert len(out) == 560
